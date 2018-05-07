@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {
+    FlatList,
     Platform,
     StyleSheet,
     Text,
@@ -10,11 +11,28 @@ import axios from 'axios';
 type Props = {};
 export default class App extends Component<Props>
 {
+    constructor(props)
+    {
+        super(props);
+        this.state = {
+            dataSource: [],
+        }
+    }
+
     render()
     {
+        console.log(this.state.dataSource);
         return (
             <View style={styles.container}>
-
+                <FlatList
+                    data={this.state.dataSource}
+                    renderItem={({item}) =>
+                    {
+                        console.log(item);
+                        return (<Text>{item.original_title}</Text>);
+                    }}
+                    keyExtractor={(item, index) => index.toString()}
+                />
             </View>
         );
     }
@@ -31,6 +49,9 @@ export default class App extends Component<Props>
             .then((response) =>
             {
                 console.log(response);
+                this.setState({
+                    dataSource: response.data.results,
+                })
             })
             .catch((error) =>
             {
@@ -42,8 +63,6 @@ export default class App extends Component<Props>
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#F5FCFF',
+        backgroundColor: '#fff',
     },
 });
