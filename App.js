@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {
-    FlatList,
+    FlatList, Image,
     Platform,
     StyleSheet,
     Text,
@@ -29,7 +29,17 @@ export default class App extends Component<Props>
                     renderItem={({item}) =>
                     {
                         console.log(item);
-                        return (<Text>{item.original_title}</Text>);
+                        return (
+                            <View style={styles.item_container}>
+                                <Image
+                                    style={styles.item_image}
+                                    source={{uri: 'https://image.tmdb.org/t/p/w200' + item.poster_path}}
+                                />
+                                <Text style={{marginLeft: 20, fontSize: 17}}>
+                                    {item.title}
+                                </Text>
+                            </View>
+                        );
                     }}
                     keyExtractor={(item, index) => index.toString()}
                 />
@@ -65,4 +75,15 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
     },
+    item_container: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        margin: 10,
+        backgroundColor: '#fff',
+    },
+    item_image: {
+        width: 80,
+        height: 120,
+        borderRadius: 10,
+    }
 });
