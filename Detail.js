@@ -4,7 +4,7 @@ import {
     Platform,
     StyleSheet,
     Text,
-    View
+    View, TouchableOpacity
 } from 'react-native';
 import axios from 'axios';
 
@@ -22,13 +22,13 @@ export default class Detail extends Component<Props>
     {
         super(props);
         this.state = {
-            dataSource: [],
+            like: this.props.navigation.state.params.like,
         }
     }
 
     render()
     {
-        let {image} = this.props.navigation.state.params;
+        let {image, updateStateLike, id} = this.props.navigation.state.params;
         return (
             <View style={styles.container}>
                 <Image
@@ -36,14 +36,40 @@ export default class Detail extends Component<Props>
                     source={{uri: image}}
                 />
 
+                <TouchableOpacity onPress={() =>
+                {
+                    this.setState({like: !this.state.like});
+                    updateStateLike(id);
+                }}>
+                    {this.renderHear()}
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
+    renderHear = () =>
+    {
+        if (this.state.like)
+        {
+            return (
+                <Image
+                    style={{width: 50, height: 50, marginTop: 20}}
+                    source={{uri: 'https://png.icons8.com/metro/1600/hearts.png'}}
+                    resizeMode={'contain'}
+                />
+            );
+        }
+        else
+        {
+            return (
                 <Image
                     style={{width: 50, height: 50, marginTop: 20}}
                     source={{uri: 'https://png.icons8.com/metro/1600/like.png'}}
                     resizeMode={'contain'}
                 />
-            </View>
-        );
-    }
+            );
+        }
+    };
 
     componentDidMount()
     {

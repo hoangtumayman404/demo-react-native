@@ -20,27 +20,29 @@ export default class ListMovie extends Component<Props>
         super(props);
         this.state = {
             dataSource: [],
-        }
+        };
     }
 
     render()
     {
         const {navigate} = this.props.navigation;
-        console.log(this.state.dataSource);
         return (
             <View style={styles.container}>
                 <FlatList
                     data={this.state.dataSource}
-                    renderItem={({item}) =>
+                    extraData={this.state}
+                    renderItem={({item, index}) =>
                     {
-                        console.log(item);
                         return (
                             <TouchableOpacity style={styles.item_container}
                                               onPress={() =>
                                               {
                                                   navigate('Detail', {
                                                       image: 'https://image.tmdb.org/t/p/w200' + item.poster_path,
-                                                      title: item.title
+                                                      title: item.title,
+                                                      updateStateLike: this.updateStateLike,
+                                                      id: item.id,
+                                                      like: item.like,
                                                   });
                                               }}>
                                 <Image
@@ -56,11 +58,8 @@ export default class ListMovie extends Component<Props>
                                     </Text>
                                 </View>
 
-                                <Image
-                                    style={{width: 30, height: 30, position: 'absolute', bottom: 0, right: 0}}
-                                    source={{uri: 'https://png.icons8.com/metro/1600/like.png'}}
-                                    resizeMode={'contain'}
-                                />
+                                {this.renderHear(item.like)}
+
                             </TouchableOpacity>
                         );
                     }}
@@ -70,9 +69,44 @@ export default class ListMovie extends Component<Props>
         );
     }
 
-    componentDidMount()
+    updateStateLike = (id) =>
     {
-        axios.get(
+        console.log('updateStateLike run', this.state);
+
+        let index = this.state.dataSource.findIndex((item) => item.id === id);
+
+        this.state.dataSource[index].like = !this.state.dataSource[index].like;
+
+        this.setState({dataSource: this.state.dataSource});
+    };
+
+    renderHear = (like) =>
+    {
+        if (like)
+        {
+            return (
+                <Image
+                    style={{width: 30, height: 30, position: 'absolute', bottom: 0, right: 0}}
+                    source={{uri: 'https://png.icons8.com/metro/1600/hearts.png'}}
+                    resizeMode={'contain'}
+                />
+            );
+        }
+        else
+        {
+            return (
+                <Image
+                    style={{width: 30, height: 30, position: 'absolute', bottom: 0, right: 0}}
+                    source={{uri: 'https://png.icons8.com/metro/1600/like.png'}}
+                    resizeMode={'contain'}
+                />
+            );
+        }
+    };
+
+    async componentDidMount()
+    {
+        let movies = await axios.get(
             'https://api.themoviedb.org/3/discover/movie',
             {
                 params: {
@@ -82,14 +116,25 @@ export default class ListMovie extends Component<Props>
             .then((response) =>
             {
                 console.log(response);
-                this.setState({
-                    dataSource: response.data.results,
-                })
+                return response.data.results;
             })
             .catch((error) =>
             {
                 console.log(error.response);
+                return error.response.data;
             });
+
+        if (Array.isArray(movies))
+        {
+            for (let i = 0; i < movies.length; i++)
+            {
+                movies[i].like = false;
+            }
+        }
+
+        this.setState({
+            dataSource: movies,
+        })
     }
 }
 
